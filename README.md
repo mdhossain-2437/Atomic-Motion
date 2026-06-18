@@ -43,6 +43,7 @@ Implemented now:
 - DOM-like element parser.
 - Safe utility validation.
 - Central frame scheduler with read-before-write ordering.
+- Runtime style application for fade/reveal initial and active states.
 - Temporary `will-change` helper.
 - `prefers-reduced-motion` helper.
 - Node test suite using the built-in `node:test` runner.
@@ -68,6 +69,7 @@ npm run lint
 
 ```js
 import {
+  applyMotionStyles,
   createFrameScheduler,
   initAtomicMotion,
   parseMotionElement,
@@ -75,6 +77,33 @@ import {
 } from 'atomic-motion'
 
 const { elements, scheduler } = initAtomicMotion(document)
+```
+
+## Runtime style behavior
+
+`initAtomicMotion(document)` scans for `[data-am]` and `[data-am-preset]`, parses each element, applies temporary `will-change`, and writes the initial compositor-safe styles.
+
+For a reveal utility:
+
+```html
+<h1 data-am="reveal-left" data-am-distance="32" data-am-duration="700">
+  Cinematic typography
+</h1>
+```
+
+Atomic Motion applies initial styles equivalent to:
+
+```css
+opacity: 0;
+transform: translate3d(-32px, 0, 0);
+transition: transform 700ms var(--am-ease-standard-out), opacity 700ms var(--am-ease-standard-out);
+```
+
+When activated, the runtime writes only compositor-safe values:
+
+```css
+opacity: 1;
+transform: translate3d(0, 0, 0);
 ```
 
 ## Attribute grammar preview
