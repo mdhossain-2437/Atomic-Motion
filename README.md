@@ -1,61 +1,62 @@
 # Atomic Motion
 
-Atomic Motion is an open-source experiment in AI-native, utility-first motion for the web.
+AI-native, utility-first motion primitives for declarative web animation.
 
-The project goal is to make high-quality web animation easier for both humans and AI coding agents by replacing scattered imperative animation code with a small declarative grammar based on HTML data attributes.
-
-Instead of asking an AI agent to write lifecycle-sensitive animation code, Atomic Motion gives the agent a finite set of safe attributes to attach directly to the target DOM node.
+Atomic Motion turns high-quality motion into a constrained HTML attribute grammar that humans and AI agents can both use safely.
 
 ```html
 <section
-  data-am="reveal"
+  data-am="reveal-up"
   data-am-trigger="view"
-  data-am-axis="y"
   data-am-distance="32"
   data-am-duration="900"
   data-am-ease="expo-out"
-  data-am-stagger="80"
 >
   <h1>AI-native motion for the web</h1>
 </section>
 ```
 
-## Why this exists
+## Why Atomic Motion
 
-Modern AI agents are good at editing markup, but they often struggle with imperative animation code that requires selectors, refs, component lifecycle cleanup, scroll-trigger disposal, and cross-file state management.
+AI agents are good at editing markup, but unreliable when asked to generate lifecycle-sensitive animation code across selectors, refs, route transitions, cleanup hooks, and scroll-trigger state.
 
-Atomic Motion treats animation as a constrained compile target:
+Atomic Motion makes motion a deterministic compile target:
 
-- Declarative data attributes instead of imperative orchestration.
-- A centralized frame scheduler for read/write batching.
-- Transform and opacity first, avoiding layout-triggering properties by default.
-- Temporary `will-change` management to avoid long-lived GPU memory bloat.
-- Future MCP resources, tools, and prompts for agent-safe design-to-code workflows.
-- Future WebGL/Three.js adapters for DOM-to-3D synchronization.
+- Declarative `data-am-*` attributes instead of imperative orchestration.
+- A small dependency-free runtime.
+- Central frame scheduler with read/write separation.
+- Transform/opacity-first style writes.
+- `IntersectionObserver` viewport activation.
+- Reduced-motion support.
+- Runtime cleanup via `destroy()`.
+- Attribute diagnostics for humans, AI agents, and CI.
 
 ## Current status
 
-This repository is in early setup/MVP stage.
+This is an early MVP, but the repository is structured as a real open-source project.
 
-Implemented now:
+Implemented:
 
-- Public data-attribute grammar.
-- DOM-like element parser.
-- Safe utility validation.
-- Motion attribute diagnostics via `validateMotionAttributes()`.
-- Central frame scheduler with read-before-write ordering.
-- Runtime style application for fade/reveal initial and active states.
-- Viewport activation with `IntersectionObserver`.
-- Temporary `will-change` helper.
-- `prefers-reduced-motion` helper.
-- Node test suite using the built-in `node:test` runner.
+- Finite public attribute grammar.
+- DOM-like parser.
+- Attribute diagnostics with `validateMotionAttributes()`.
+- Read/write scheduler.
+- Initial and active fade/reveal style writer.
+- Viewport activation.
+- Temporary `will-change` lifecycle management.
+- Reduced-motion behavior.
+- CLI validator for HTML/Markdown files.
+- Documentation and example page.
+- GitHub Actions CI.
 
-Planned next:
+Planned:
 
-- Browser runtime that adds more presets such as parallax and stagger.
-- MCP server exposing utilities, examples, prompts, and AST-safe mutation tools.
-- React/Vue/Svelte/Astro adapters.
-- Optional WebGL/Three.js synchronization package.
+- Stagger support.
+- Hover/focus/click triggers.
+- TypeScript declarations.
+- MCP server for AI agents.
+- Framework adapters.
+- Optional WebGL/Three.js layer.
 
 ## Install from source
 
@@ -67,18 +68,12 @@ npm run lint
 npm run validate:motion
 ```
 
-## API preview
+## Usage
 
 ```js
-import {
-  applyMotionStyles,
-  createFrameScheduler,
-  initAtomicMotion,
-  parseMotionElement,
-  validateMotionAttributes,
-} from 'atomic-motion'
+import { initAtomicMotion } from 'atomic-motion'
 
-const { elements, scheduler, destroy } = initAtomicMotion(document, {
+const runtime = initAtomicMotion(document, {
   view: {
     threshold: 0.1,
     rootMargin: '0px 0px -15% 0px',
@@ -86,86 +81,52 @@ const { elements, scheduler, destroy } = initAtomicMotion(document, {
 })
 
 // Call during SPA route/component teardown.
-destroy()
+runtime.destroy()
 ```
 
-## Viewport activation
-
-Elements using `data-am-trigger="view"` are observed with `IntersectionObserver`. When an element intersects, Atomic Motion queues the active-state write through the central scheduler:
-
-```html
-<h2 data-am="reveal" data-am-trigger="view" data-am-distance="24">
-  Scroll-safe reveal
-</h2>
-```
-
-Activation writes:
-
-```css
-opacity: 1;
-transform: translate3d(0, 0, 0);
---am-state: active;
-```
-
-After activation, Atomic Motion unobserves the element and schedules removal of the temporary `will-change` hint. Call `destroy()` when tearing down a route or component tree to disconnect observers and release temporary style hints.
-
-## Runtime style behavior
-
-`initAtomicMotion(document)` scans for `[data-am]` and `[data-am-preset]`, parses each element, applies temporary `will-change`, and writes the initial compositor-safe styles.
-
-For a reveal utility:
-
-```html
-<h1 data-am="reveal-left" data-am-distance="32" data-am-duration="700">
-  Cinematic typography
-</h1>
-```
-
-Atomic Motion applies initial styles equivalent to:
-
-```css
-opacity: 0;
-transform: translate3d(-32px, 0, 0);
-transition: transform 700ms var(--am-ease-standard-out), opacity 700ms var(--am-ease-standard-out);
-```
-
-When activated, the runtime writes only compositor-safe values:
-
-```css
-opacity: 1;
-transform: translate3d(0, 0, 0);
-```
-
-## Attribute grammar preview
+## Attribute grammar
 
 | Attribute | Purpose |
 | --- | --- |
-| `data-am` | Motion utility name, for example `reveal`, `fade`, `parallax` |
-| `data-am-trigger` | Trigger strategy, for example `view`, `scroll`, `hover` |
-| `data-am-axis` | Axis for transform-based movement: `x` or `y` |
-| `data-am-distance` | Numeric transform distance |
-| `data-am-duration` | Numeric duration in milliseconds |
-| `data-am-ease` | Named easing token |
-| `data-am-stagger` | Numeric stagger delay in milliseconds |
-| `data-am-webgl-bind` | Future WebGL/DOM binding id |
-| `data-am-scroll` | Future scroll synchronization mode |
-| `data-am-preset` | Named higher-level preset |
+| `data-am` | Motion utility name, for example `reveal`, `fade`, `reveal-up`, `reveal-left` |
+| `data-am-trigger` | Trigger strategy. Current runtime supports `view`. |
+| `data-am-axis` | Axis for transform movement: `x`, `y`, `-x`, or `-y`. |
+| `data-am-distance` | Numeric transform distance in pixels. |
+| `data-am-duration` | Numeric duration in milliseconds. |
+| `data-am-ease` | Named easing token resolved through CSS variables. |
+| `data-am-stagger` | Reserved for stagger delay in milliseconds. |
+| `data-am-webgl-bind` | Reserved for future DOM/WebGL binding id. |
+| `data-am-scroll` | Reserved for future scroll synchronization mode. |
+| `data-am-preset` | Reserved for named higher-level presets. |
 
-## Attribute diagnostics
+## CLI validation
 
-Use `validateMotionAttributes()` to check AI-generated attributes before applying them:
-
-```js
-const diagnostics = validateMotionAttributes({
-  'data-am': 'reveal-up',
-  'data-am-duration': '900',
-})
-```
-
-The CLI can scan HTML/Markdown files for unsafe `data-am-*` attributes:
+Scan files for unsafe or hallucinated Atomic Motion attributes:
 
 ```bash
-node scripts/validate-motion.js README.md
+node scripts/validate-motion.js README.md examples/basic.html
+npm run validate:motion
+```
+
+The validator reports:
+
+- unknown `data-am-*` attributes
+- unsafe utilities such as `data-am="width"`
+- invalid numeric values such as `data-am-duration="slow"`
+
+## Documentation
+
+- docs/architecture.md
+- docs/api.md
+- docs/ai-agents.md
+- docs/roadmap.md
+- examples/basic.html
+
+## Development
+
+```bash
+npm test
+npm run lint
 npm run validate:motion
 ```
 

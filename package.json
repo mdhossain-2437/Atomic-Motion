@@ -7,10 +7,20 @@
   "exports": {
     ".": "./src/index.js"
   },
+  "bin": {
+    "atomic-motion-validate": "./scripts/validate-motion.js"
+  },
+  "files": [
+    "src",
+    "scripts/validate-motion.js",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "node --test",
     "lint": "node scripts/validate-package.js",
-    "validate:motion": "node scripts/validate-motion.js README.md"
+    "validate:motion": "node scripts/validate-motion.js README.md docs/*.md examples/*.html",
+    "check": "npm test && npm run lint && npm run validate:motion"
   },
   "keywords": [
     "animation",
@@ -19,7 +29,9 @@
     "ai-native",
     "mcp",
     "webgl",
-    "creative-coding"
+    "creative-coding",
+    "utility-first",
+    "intersection-observer"
   ],
   "author": "mdhossain-2437 <delowarhossain2437@gmail.com>",
   "license": "MIT",
@@ -30,5 +42,8 @@
   "bugs": {
     "url": "https://github.com/mdhossain-2437/Atomic-Motion/issues"
   },
-  "homepage": "https://github.com/mdhossain-2437/Atomic-Motion#readme"
+  "homepage": "https://github.com/mdhossain-2437/Atomic-Motion#readme",
+  "engines": {
+    "node": ">=20"
+  }
 }
