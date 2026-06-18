@@ -1,0 +1,33 @@
+{
+  "name": "atomic-motion",
+  "version": "0.1.0",
+  "description": "AI-native, utility-first motion primitives for declarative web animation.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "lint": "node scripts/validate-package.js"
+  },
+  "keywords": [
+    "animation",
+    "motion",
+    "data-attributes",
+    "ai-native",
+    "mcp",
+    "webgl",
+    "creative-coding"
+  ],
+  "author": "mdhossain-2437 <delowarhossain2437@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdhossain-2437/Atomic-Motion.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mdhossain-2437/Atomic-Motion/issues"
+  },
+  "homepage": "https://github.com/mdhossain-2437/Atomic-Motion#readme"
+}
