@@ -171,3 +171,72 @@ test('initAtomicMotion applies initial runtime styles to discovered elements', (
   assert.equal(element.style.values.transform, 'translate3d(-16px, 0, 0)')
   assert.equal(element.style.values['will-change'], 'transform, opacity')
 })
+
+test('initAtomicMotion activates view-triggered elements when they intersect', () => {
+  const element = fakeElement({
+    'data-am': 'reveal',
+    'data-am-trigger': 'view',
+    'data-am-distance': '20',
+  })
+  const root = { querySelectorAll: () => [element] }
+  const observers = []
+  class FakeIntersectionObserver {
+    constructor(callback, options) {
+      this.callback = callback
+      this.options = options
+      this.observed = []
+      observers.push(this)
+    }
+    observe(target) {
+      this.observed.push(target)
+    }
+    unobserve(target) {
+      this.observed = this.observed.filter((entry) => entry !== target)
+    }
+    disconnect() {
+      this.disconnected = true
+    }
+  }
+
+  const runtime = initAtomicMotion(root, {
+    autoStart: false,
+    IntersectionObserver: FakeIntersectionObserver,
+    view: { threshold: 0.25, rootMargin: '0px 0px -10% 0px' },
+  })
+
+  assert.equal(observers.length, 1)
+  assert.deepEqual(observers[0].options, { threshold: 0.25, rootMargin: '0px 0px -10% 0px' })
+  assert.deepEqual(observers[0].observed, [element])
+
+  observers[0].callback([{ target: element, isIntersecting: true }])
+  runtime.scheduler.flush()
+
+  assert.equal(element.style.values.opacity, '1')
+  assert.equal(element.style.values.transform, 'translate3d(0, 0, 0)')
+  assert.equal(element.style.values['--am-state'], 'active')
+})
+
+test('initAtomicMotion destroy disconnects viewport observers and releases will-change', () => {
+  const element = fakeElement({ 'data-am': 'fade', 'data-am-trigger': 'view' })
+  const root = { querySelectorAll: () => [element] }
+  const observers = []
+  class FakeIntersectionObserver {
+    constructor(callback) {
+      this.callback = callback
+      observers.push(this)
+    }
+    observe() {}
+    disconnect() {
+      this.disconnected = true
+    }
+  }
+
+  const runtime = initAtomicMotion(root, { autoStart: false, IntersectionObserver: FakeIntersectionObserver })
+
+  assert.equal(element.style.values['will-change'], 'transform, opacity')
+  runtime.destroy()
+  runtime.scheduler.flush()
+
+  assert.equal(observers[0].disconnected, true)
+  assert.equal(element.style.values['will-change'], undefined)
+})

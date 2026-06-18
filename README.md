@@ -44,6 +44,8 @@ Implemented now:
 - Safe utility validation.
 - Central frame scheduler with read-before-write ordering.
 - Runtime style application for fade/reveal initial and active states.
+- Viewport activation through `IntersectionObserver`.
+- Runtime `destroy()` cleanup for observers and temporary `will-change` hints.
 - Temporary `will-change` helper.
 - `prefers-reduced-motion` helper.
 - Node test suite using the built-in `node:test` runner.
@@ -76,8 +78,36 @@ import {
   shouldReduceMotion,
 } from 'atomic-motion'
 
-const { elements, scheduler } = initAtomicMotion(document)
+const { elements, scheduler, destroy } = initAtomicMotion(document, {
+  view: {
+    threshold: 0.1,
+    rootMargin: '0px 0px -15% 0px',
+  },
+})
+
+// Call during SPA route/component teardown.
+destroy()
 ```
+
+## Viewport activation
+
+Elements using `data-am-trigger="view"` are observed with `IntersectionObserver`. When an element intersects, Atomic Motion queues the active-state write through the central scheduler:
+
+```html
+<h2 data-am="reveal" data-am-trigger="view" data-am-distance="24">
+  Scroll-safe reveal
+</h2>
+```
+
+Activation writes:
+
+```css
+opacity: 1;
+transform: translate3d(0, 0, 0);
+--am-state: active;
+```
+
+After activation, Atomic Motion unobserves the element and schedules removal of the temporary `will-change` hint. Call `destroy()` when tearing down a route or component tree to disconnect observers and release temporary style hints.
 
 ## Runtime style behavior
 
