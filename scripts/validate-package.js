@@ -20,6 +20,7 @@ const required = [
   'test/core.test.js',
   'scripts/validate-motion.js',
   'docs/feasibility-report.md',
+  'docs/full-research-report.md',
   'docs/architecture.md',
   'docs/api.md',
   'docs/ai-agents.md',

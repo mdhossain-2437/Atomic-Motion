@@ -117,6 +117,7 @@ The validator reports:
 ## Documentation
 
 - docs/feasibility-report.md
+- docs/full-research-report.md
 - docs/architecture.md
 - docs/api.md
 - docs/ai-agents.md
