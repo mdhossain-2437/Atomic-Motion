@@ -8,6 +8,7 @@ import {
   initAtomicMotion,
   parseMotionElement,
   shouldReduceMotion,
+  validateMotionAttributes,
 } from '../src/index.js'
 
 function fakeElement(attributes = {}) {
@@ -62,6 +63,50 @@ test('parseMotionElement rejects unsafe layout animation utilities by default', 
   assert.throws(
     () => parseMotionElement(fakeElement({ 'data-am': 'width' })),
     /Unsafe Atomic Motion utility/
+  )
+})
+
+test('validateMotionAttributes reports unknown and unsafe motion attributes without throwing', () => {
+  const diagnostics = validateMotionAttributes({
+    'data-am': 'width',
+    'data-am-trigger': 'view',
+    'data-am-duration': 'slow',
+    'data-am-top': '12',
+    'data-am-distance': '24',
+  })
+
+  assert.deepEqual(diagnostics, [
+    {
+      code: 'unsafe-utility',
+      attribute: 'data-am',
+      value: 'width',
+      message: 'Unsafe Atomic Motion utility "width". Use transform/opacity-safe utilities only.',
+    },
+    {
+      code: 'invalid-number',
+      attribute: 'data-am-duration',
+      value: 'slow',
+      message: 'data-am-duration must be a finite number.',
+    },
+    {
+      code: 'unknown-attribute',
+      attribute: 'data-am-top',
+      value: '12',
+      message: 'Unknown Atomic Motion attribute "data-am-top".',
+    },
+  ])
+})
+
+test('validateMotionAttributes accepts safe finite motion attributes', () => {
+  assert.deepEqual(
+    validateMotionAttributes({
+      'data-am': 'reveal-up',
+      'data-am-trigger': 'view',
+      'data-am-distance': '32',
+      'data-am-duration': '900',
+      'data-am-ease': 'expo-out',
+    }),
+    []
   )
 })
 

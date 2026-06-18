@@ -42,18 +42,17 @@ Implemented now:
 - Public data-attribute grammar.
 - DOM-like element parser.
 - Safe utility validation.
+- Motion attribute diagnostics via `validateMotionAttributes()`.
 - Central frame scheduler with read-before-write ordering.
 - Runtime style application for fade/reveal initial and active states.
-- Viewport activation through `IntersectionObserver`.
-- Runtime `destroy()` cleanup for observers and temporary `will-change` hints.
+- Viewport activation with `IntersectionObserver`.
 - Temporary `will-change` helper.
 - `prefers-reduced-motion` helper.
 - Node test suite using the built-in `node:test` runner.
 
 Planned next:
 
-- Browser runtime that applies reveal, fade, parallax, and stagger presets.
-- CLI validator for unsafe motion attributes.
+- Browser runtime that adds more presets such as parallax and stagger.
 - MCP server exposing utilities, examples, prompts, and AST-safe mutation tools.
 - React/Vue/Svelte/Astro adapters.
 - Optional WebGL/Three.js synchronization package.
@@ -65,6 +64,7 @@ git clone https://github.com/mdhossain-2437/Atomic-Motion.git
 cd Atomic-Motion
 npm test
 npm run lint
+npm run validate:motion
 ```
 
 ## API preview
@@ -75,7 +75,7 @@ import {
   createFrameScheduler,
   initAtomicMotion,
   parseMotionElement,
-  shouldReduceMotion,
+  validateMotionAttributes,
 } from 'atomic-motion'
 
 const { elements, scheduler, destroy } = initAtomicMotion(document, {
@@ -150,6 +150,24 @@ transform: translate3d(0, 0, 0);
 | `data-am-webgl-bind` | Future WebGL/DOM binding id |
 | `data-am-scroll` | Future scroll synchronization mode |
 | `data-am-preset` | Named higher-level preset |
+
+## Attribute diagnostics
+
+Use `validateMotionAttributes()` to check AI-generated attributes before applying them:
+
+```js
+const diagnostics = validateMotionAttributes({
+  'data-am': 'reveal-up',
+  'data-am-duration': '900',
+})
+```
+
+The CLI can scan HTML/Markdown files for unsafe `data-am-*` attributes:
+
+```bash
+node scripts/validate-motion.js README.md
+npm run validate:motion
+```
 
 ## Performance principles
 

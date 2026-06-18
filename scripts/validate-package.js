@@ -8,6 +8,7 @@ const required = [
   'LICENSE',
   'src/index.js',
   'test/core.test.js',
+  'scripts/validate-motion.js',
 ]
 
 const missing = required.filter((file) => !fs.existsSync(path.join(root, file)))

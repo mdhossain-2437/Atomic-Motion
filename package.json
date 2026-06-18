@@ -9,7 +9,8 @@
   },
   "scripts": {
     "test": "node --test",
-    "lint": "node scripts/validate-package.js"
+    "lint": "node scripts/validate-package.js",
+    "validate:motion": "node scripts/validate-motion.js README.md"
   },
   "keywords": [
     "animation",
