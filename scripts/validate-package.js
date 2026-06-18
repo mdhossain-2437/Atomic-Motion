@@ -19,6 +19,7 @@ const required = [
   'src/runtime/init.js',
   'test/core.test.js',
   'scripts/validate-motion.js',
+  'docs/feasibility-report.md',
   'docs/architecture.md',
   'docs/api.md',
   'docs/ai-agents.md',

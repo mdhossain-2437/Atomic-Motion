@@ -1,6 +1,6 @@
 # Roadmap
 
-Atomic Motion is early. The current repository establishes the core grammar, parser, validator, scheduler, runtime initialization, viewport activation, and project documentation.
+The current repository establishes the core grammar, parser, validator, scheduler, runtime initialization, viewport activation, project documentation, and feasibility thesis. See `docs/feasibility-report.md` for the architectural argument behind the project.
 
 ## Phase 1: Core runtime
 
